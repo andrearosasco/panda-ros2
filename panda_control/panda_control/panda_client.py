@@ -6,9 +6,41 @@ import rclpy
 from rclpy.node import Node
 from panda_interface.msg import PandaCommand
 
-from robohive.utils.min_jerk import generate_joint_space_min_jerk
 
+def generate_joint_space_min_jerk(
+    start, goal, time_to_go: float, dt: float):
+    # Adapted from : https://github.com/vikashplus/robohive/blob/main/robohive/utils/min_jerk.py
 
+    def _min_jerk_spaces(N: int, T: float):
+        assert N > 1, "Number of planning steps must be larger than 1."
+
+        t_traj = np.linspace(0, 1, N)
+        p_traj = 10 * t_traj**3 - 15 * t_traj**4 + 6 * t_traj**5
+        pd_traj = (30 * t_traj**2 - 60 * t_traj**3 + 30 * t_traj**4) / T
+        pdd_traj = (60 * t_traj - 180 * t_traj**2 + 120 * t_traj**3) / (T**2)
+
+        return p_traj, pd_traj, pdd_traj
+
+    steps =  int(time_to_go/dt)
+
+    p_traj, pd_traj, pdd_traj = _min_jerk_spaces(steps, time_to_go)
+
+    D = goal - start
+    q_traj = start[None, :] + D[None, :] * p_traj[:, None]
+    qd_traj = D[None, :] * pd_traj[:, None]
+    qdd_traj = D[None, :] * pdd_traj[:, None]
+
+    waypoints = [
+        {
+            "time_from_start": i * dt,
+            "position": q_traj[i, :],
+            "velocity": qd_traj[i, :],
+            "acceleration": qdd_traj[i, :],
+        }
+        for i in range(steps)
+    ]
+
+    return waypoints
 
 class PandaClient(Node):
 
@@ -46,7 +78,6 @@ class PandaClient(Node):
 
         request.command = PandaCommand(position=q_desired)
         self.future = self.client_names['apply_commands'].call_async(request)
-        # rclpy.spin_until_future_complete(self, self.future)
 
         return
 
@@ -68,13 +99,12 @@ class PandaClient(Node):
 
     def reset(self, reset_pos=None, time_to_go=5):
         home = np.array([0.035972153270453736, 0.26206892568271034, -0.09772715938167076, -1.3994067706311577, -0.009183868408203125, 1.6383829876946538, -0.011601826569581752])
-       
-        # Use registered controller
+
         q_current = self.get_sensors().state.position
-        # generate min jerk trajectory
+
         dt = 0.1
         waypoints =  generate_joint_space_min_jerk(start=q_current, goal=home, time_to_go=time_to_go, dt=dt)
-        # reset using min_jerk traj
+
         for i in range(len(waypoints)):
             self.apply_commands(q_desired=waypoints[i]['position'])
             time.sleep(dt)
@@ -87,8 +117,6 @@ def main():
 
     if panda.connect():
         panda.reset()
-
-    # panda.close()
 
 
 if __name__ == '__main__':
