@@ -1,0 +1,16 @@
+{
+  "package_name": "panda_interface",
+  "non_idl_tuples": [
+    "/home/robotdataset/project/panda_interface:msg/PandaCommand.msg",
+    "/home/robotdataset/project/panda_interface:msg/PandaState.msg",
+    "/home/robotdataset/project/panda_interface:msg/PandaGripperCommand.msg",
+    "/home/robotdataset/project/panda_interface:msg/PandaGripperState.msg",
+    "/home/robotdataset/project/panda_interface:srv/ApplyCommands.srv",
+    "/home/robotdataset/project/panda_interface:srv/GetSensors.srv",
+    "/home/robotdataset/project/panda_interface:srv/Connect.srv",
+    "/home/robotdataset/project/panda_interface:srv/Close.srv",
+    "/home/robotdataset/project/panda_interface:srv/ApplyCommandsGripper.srv",
+    "/home/robotdataset/project/panda_interface:srv/GetSensorsGripper.srv",
+    "/home/robotdataset/project/panda_interface:srv/ConnectGripper.srv"
+  ]
+}

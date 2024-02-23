@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from panda_interface/srv/GetSensors.srv
+// generated code does not contain a copyright notice
+
+#include "panda_interface/msg/PandaState.idl"
+
+module panda_interface {
+  module srv {
+    struct GetSensors_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct GetSensors_Response {
+      panda_interface::msg::PandaState state;
+    };
+  };
+};

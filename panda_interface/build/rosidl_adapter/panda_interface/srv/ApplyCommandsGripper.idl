@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from panda_interface/srv/ApplyCommandsGripper.srv
+// generated code does not contain a copyright notice
+
+#include "panda_interface/msg/PandaGripperCommand.idl"
+
+module panda_interface {
+  module srv {
+    struct ApplyCommandsGripper_Request {
+      panda_interface::msg::PandaGripperCommand command;
+    };
+    struct ApplyCommandsGripper_Response {
+      boolean success;
+    };
+  };
+};

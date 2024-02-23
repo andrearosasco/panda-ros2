@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from panda_interface/msg/PandaState.msg
+// generated code does not contain a copyright notice
+
+
+module panda_interface {
+  module msg {
+    typedef double double__7[7];
+    struct PandaState {
+      double__7 position;
+
+      double__7 velocity;
+    };
+  };
+};

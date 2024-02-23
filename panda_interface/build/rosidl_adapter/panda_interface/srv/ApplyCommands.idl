@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from panda_interface/srv/ApplyCommands.srv
+// generated code does not contain a copyright notice
+
+#include "panda_interface/msg/PandaCommand.idl"
+
+module panda_interface {
+  module srv {
+    struct ApplyCommands_Request {
+      panda_interface::msg::PandaCommand command;
+    };
+    struct ApplyCommands_Response {
+      boolean success;
+    };
+  };
+};

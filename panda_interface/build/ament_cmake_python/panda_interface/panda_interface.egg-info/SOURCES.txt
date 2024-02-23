@@ -1,0 +1,6 @@
+setup.py
+panda_interface/__init__.py
+panda_interface.egg-info/PKG-INFO
+panda_interface.egg-info/SOURCES.txt
+panda_interface.egg-info/dependency_links.txt
+panda_interface.egg-info/top_level.txt

@@ -1,0 +1,12 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from panda_interface/msg/PandaGripperState.msg
+// generated code does not contain a copyright notice
+
+
+module panda_interface {
+  module msg {
+    struct PandaGripperState {
+      float width;
+    };
+  };
+};

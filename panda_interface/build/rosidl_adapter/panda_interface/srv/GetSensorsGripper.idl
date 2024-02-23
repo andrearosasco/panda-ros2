@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from panda_interface/srv/GetSensorsGripper.srv
+// generated code does not contain a copyright notice
+
+#include "panda_interface/msg/PandaGripperState.idl"
+
+module panda_interface {
+  module srv {
+    struct GetSensorsGripper_Request {
+      uint8 structure_needs_at_least_one_member;
+    };
+    struct GetSensorsGripper_Response {
+      panda_interface::msg::PandaGripperState state;
+    };
+  };
+};
