@@ -13,14 +13,14 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='robotdataset',
+    maintainer='Andrea Rosasco',
     maintainer_email='andrearosasco.ar@gmail.com',
     description='TODO: Package description',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'panda_server = panda_control.panda_server:main'
+            'panda_server = panda_control.panda_server:main',
             'panda_client = panda_control.panda_client:main'
         ],
     },
