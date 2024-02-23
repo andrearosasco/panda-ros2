@@ -1,5 +1,5 @@
 # panda-ros2
-Client Server Nodes to control Emika Franka Panda Manipulator
+Server and client nodes to control Emika Franka Panda Manipulator with ROS2.
 
 ## Conda Installation
 1. `git clone https://github.com/andrearosasco/panda-ros2.git`
