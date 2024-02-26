@@ -91,11 +91,7 @@ class PandaServer(Node):
         return response
 
     def close(self, request, response):
-        self.panda.stop_controller()
-        exit(0)
-
-
-
+        pass
 
 
 def main():
