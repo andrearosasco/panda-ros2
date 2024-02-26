@@ -13,8 +13,8 @@ from panda_interface.msg import PandaState, PandaGripperState
 
 class PandaServer(Node):
 
-    kp = np.array([40, 30, 50, 25, 35, 25, 10])
-    kd = np.array([4, 6, 5, 5, 3, 2, 1])
+    kp = np.array([40, 30, 50, 25, 15, 5, 5])
+    kd = np.array([4, 6, 5, 5, 1.5, 1, 1])
     ip = "172.16.0.2"
 
     def __init__(self):
