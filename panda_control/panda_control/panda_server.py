@@ -15,6 +15,10 @@ class PandaServer(Node):
 
     kp = np.array([40, 30, 50, 25, 15, 5, 5])
     kd = np.array([4, 6, 5, 5, 1.5, 1, 1])
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
     ip = "172.16.0.2"
 
     def __init__(self):
@@ -29,8 +33,11 @@ class PandaServer(Node):
         self.create_service(ApplyCommandsGripper, 'apply_commands_gripper', self.apply_commands_gripper)
         self.create_service(ConnectGripper, 'connect_gripper', self.connect_gripper)
 
+        self.connected = False
+
     def apply_commands(self, request, response):
-        # self.get_logger().info(f'Moving end effector to: {request.command}')
+        self.get_logger().info('Apply Commands')
+        #self.get_logger().info(f'Moving end effector to: {request.command}')
         gain = request.command.gain
 
         self.controller.set_control(request.command.position)
@@ -41,12 +48,16 @@ class PandaServer(Node):
         return response
 
     def get_sensors(self, request, response):
+        self.get_logger().info('Get Sensors')
         state = self.panda.get_state()
         response.state = PandaState(position=state.q, velocity=state.dq)
 
         return response
 
     def connect(self, request, response):
+        if self.connected:
+            response.success = True
+            return response
 
         try:
             self.panda = panda_py.Panda(self.ip)
@@ -68,6 +79,7 @@ class PandaServer(Node):
 
             self.get_logger().info(f'Connected to panda@{self.ip}')
             response.success = True
+            self.connected = True
         except RuntimeError:
             self.get_logger().info(f'Connection to panda@{self.ip} failed')
             response.success = False
@@ -75,31 +87,41 @@ class PandaServer(Node):
         return response
 
     def get_sensors_gripper(self, request, response):
+        self.get_logger().info('Get Sensors Gripper')
         response.state = PandaGripperState(width=self.gripper.read_once().width)
         return response
 
 
     def apply_commands_gripper(self, request, response):
+        self.get_logger().info('Apply Commands Gripper')
         # self.get_logger().info(f'Moving gripper at width: {request.command.width}')
         self.gripper.move(request.command.width, speed=0.1)
         response.success = True
         return response
 
     def connect_gripper(self, request, response):
+        self.get_logger().info('Connect gripper')
         self.gripper = Gripper(self.ip)
         response.success = True
         return response
 
     def close(self, request, response):
-        pass
+        self.get_logger().info('Closing controller')
+        self.panda.stop_controller()
+        self.get_logger().info('Controller closed')
+        raise SytemExit
 
 
 def main():
     rclpy.init()
 
     minimal_service = PandaServer()
-    rclpy.spin(minimal_service)
-    rclpy.shutdown()
+    try:
+        rclpy.spin(minimal_service)
+    except SystemExit:
+        print('stopped spinning')
+        rclpy.shutdown()
+        print('shutting down ros')
 
 
 if __name__ == '__main__':
