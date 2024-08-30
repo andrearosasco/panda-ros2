@@ -15,10 +15,7 @@ class PandaServer(Node):
 
     kp = np.array([40, 30, 50, 25, 15, 5, 5])
     kd = np.array([4, 6, 5, 5, 1.5, 1, 1])
-<<<<<<< Updated upstream
-=======
 
->>>>>>> Stashed changes
     ip = "172.16.0.2"
 
     def __init__(self):
