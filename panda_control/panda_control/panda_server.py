@@ -31,6 +31,7 @@ class PandaServer(Node):
         self.create_service(ConnectGripper, 'connect_gripper', self.connect_gripper)
 
         self.connected = False
+        self.panda = None
 
     def apply_commands(self, request, response):
         self.get_logger().info('Apply Commands')
@@ -46,6 +47,10 @@ class PandaServer(Node):
 
     def get_sensors(self, request, response):
         self.get_logger().info('Get Sensors')
+        if self.panda is None:
+            self.get_logger().info('get_sensors called before connecting')
+            exit(1)
+        
         state = self.panda.get_state()
         response.state = PandaState(position=state.q, velocity=state.dq)
 
@@ -106,7 +111,7 @@ class PandaServer(Node):
         self.get_logger().info('Closing controller')
         self.panda.stop_controller()
         self.get_logger().info('Controller closed')
-        raise SytemExit
+        raise SystemExit
 
 
 def main():
