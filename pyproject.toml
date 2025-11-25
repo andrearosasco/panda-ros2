@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel", "cmake"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "panda_ros2"
+version = "0.0.1"  # Update to match your package.xml
+description = "ROS 2 interface for Panda"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    panda-python @ https://github.com/andrearosasco/panda-ros2/releases/download/v0.0.1/panda_python-0.7.4+libfranka.0.8.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl"
+]

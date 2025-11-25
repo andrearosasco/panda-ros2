@@ -1,15 +1,14 @@
 from dataclasses import dataclass
-from panda_interface.srv import ApplyCommands, Connect, GetSensors, Close, GetSensorsGripper, ApplyCommandsGripper, ConnectGripper
+from panda_interface.srv import ApplyCommands, Connect, GetSensors, Close
 
 import numpy as np
 
 from panda_py.controllers import JointPosition
-from panda_py.libfranka import Gripper
 import panda_py
 
 import rclpy
 from rclpy.node import Node
-from panda_interface.msg import PandaState, PandaGripperState
+from panda_interface.msg import PandaState
 
 class PandaServer(Node):
 
@@ -25,10 +24,6 @@ class PandaServer(Node):
         self.create_service(GetSensors, 'get_sensors', self.get_sensors)
         self.create_service(Connect, 'connect', self.connect)
         self.create_service(Close, 'close', self.close)
-
-        self.create_service(GetSensorsGripper, 'get_sensors_gripper', self.get_sensors_gripper)
-        self.create_service(ApplyCommandsGripper, 'apply_commands_gripper', self.apply_commands_gripper)
-        self.create_service(ConnectGripper, 'connect_gripper', self.connect_gripper)
 
         self.connected = False
         self.panda = None
@@ -86,25 +81,6 @@ class PandaServer(Node):
             self.get_logger().info(f'Connection to panda@{self.ip} failed')
             response.success = False
 
-        return response
-
-    def get_sensors_gripper(self, request, response):
-        self.get_logger().info('Get Sensors Gripper')
-        response.state = PandaGripperState(width=self.gripper.read_once().width)
-        return response
-
-
-    def apply_commands_gripper(self, request, response):
-        self.get_logger().info('Apply Commands Gripper')
-        # self.get_logger().info(f'Moving gripper at width: {request.command.width}')
-        self.gripper.move(request.command.width, speed=0.1)
-        response.success = True
-        return response
-
-    def connect_gripper(self, request, response):
-        self.get_logger().info('Connect gripper')
-        self.gripper = Gripper(self.ip)
-        response.success = True
         return response
 
     def close(self, request, response):

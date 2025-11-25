@@ -7,6 +7,16 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+execute_process(
+  COMMAND "${Python3_EXECUTABLE}" -c "import numpy; print(numpy.get_include())"
+  OUTPUT_VARIABLE NUMPY_INCLUDE_DIR
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+
+include_directories(${NUMPY_INCLUDE_DIR})
+
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)

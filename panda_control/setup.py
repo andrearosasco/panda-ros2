@@ -1,3 +1,5 @@
+import os
+from glob import glob
 from setuptools import setup
 
 package_name = 'panda_control'
@@ -10,6 +12,7 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -21,7 +24,9 @@ setup(
     entry_points={
         'console_scripts': [
             'panda_server = panda_control.panda_server:main',
-            'panda_client = panda_control.panda_client:main'
+            'panda_gripper_server = panda_control.panda_gripper_server:main',
+            'panda_client = panda_control.panda_client:main',
+            'panda_gripper_client = panda_control.panda_gripper_client:main'
         ],
     },
 )
