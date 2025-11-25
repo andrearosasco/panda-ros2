@@ -1,7 +1,10 @@
 from panda_interface.srv import GetSensorsGripper, ApplyCommandsGripper, ConnectGripper
 from panda_py.libfranka import Gripper
 import rclpy
+import threading
 from rclpy.node import Node
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import ReentrantCallbackGroup
 from panda_interface.msg import PandaGripperState
 
 class PandaGripperServer(Node):
@@ -11,23 +14,33 @@ class PandaGripperServer(Node):
     def __init__(self):
         super().__init__('panda_gripper_server')
 
-        self.create_service(GetSensorsGripper, 'get_sensors_gripper', self.get_sensors_gripper)
-        self.create_service(ApplyCommandsGripper, 'apply_commands_gripper', self.apply_commands_gripper)
-        self.create_service(ConnectGripper, 'connect_gripper', self.connect_gripper)
+        self.cb_group = ReentrantCallbackGroup()
+        self.lock = threading.Lock()
+        self.cached_width = 0.0
+
+        self.create_service(GetSensorsGripper, 'get_sensors_gripper', self.get_sensors_gripper, callback_group=self.cb_group)
+        self.create_service(ApplyCommandsGripper, 'apply_commands_gripper', self.apply_commands_gripper, callback_group=self.cb_group)
+        self.create_service(ConnectGripper, 'connect_gripper', self.connect_gripper, callback_group=self.cb_group)
 
         self.gripper = None
         self.target_width = 1.0
-        self.create_timer(0.1, self.control_loop)
+        self.past_target = 1.0
+        self.create_timer(0.01, self.control_loop, callback_group=self.cb_group)
 
     def control_loop(self):
-        if self.gripper:
+        if self.lock.acquire(blocking=False):
             try:
-                self.gripper.grasp(self.target_width, speed=0.1, force=5.0)
-            except Exception:
-                pass
+                if self.gripper and self.target_width != self.past_target:
+                    try:
+                        self.cached_width = self.gripper.read_once().width
+                        self.gripper.grasp(self.target_width, speed=0.5, force=20.0, epsilon_inner=10.0, epsilon_outer=10.0)
+                    except Exception:
+                        pass
+            finally:
+                self.lock.release()
 
     def get_sensors_gripper(self, request, response):
-        self.get_logger().info('Get Sensors Gripper')
+        # self.get_logger().info('Get Sensors Gripper')
         if self.gripper is None:
              self.get_logger().warn('Gripper not connected')
              # You might want to handle this case, maybe return success=False or empty state
@@ -36,7 +49,7 @@ class PandaGripperServer(Node):
              pass
 
         try:
-            response.state = PandaGripperState(width=self.gripper.read_once().width)
+            response.state = PandaGripperState(width=self.cached_width)
         except Exception as e:
             self.get_logger().error(f'Failed to read gripper: {e}')
         
@@ -44,7 +57,8 @@ class PandaGripperServer(Node):
 
 
     def apply_commands_gripper(self, request, response):
-        self.get_logger().info('Apply Commands Gripper')
+        # self.get_logger().info('Apply Commands Gripper')
+        self.past_target = self.target_width
         self.target_width = request.command.width
         response.success = True
         return response
@@ -65,8 +79,10 @@ def main():
     rclpy.init()
 
     minimal_service = PandaGripperServer()
+    executor = MultiThreadedExecutor()
+    executor.add_node(minimal_service)
     try:
-        rclpy.spin(minimal_service)
+        executor.spin()
     except SystemExit:
         print('stopped spinning')
         rclpy.shutdown()
