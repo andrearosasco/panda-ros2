@@ -30,10 +30,13 @@ class PandaGripperServer(Node):
     def control_loop(self):
         if self.lock.acquire(blocking=False):
             try:
-                if self.gripper and self.target_width != self.past_target:
+                target = self.target_width
+                if self.gripper and target != self.past_target:
+                    print("Gripper moving to target width:", target)
                     try:
+                        self.gripper.grasp(target, speed=0.5, force=20.0, epsilon_inner=10.0, epsilon_outer=10.0)
                         self.cached_width = self.gripper.read_once().width
-                        self.gripper.grasp(self.target_width, speed=0.5, force=20.0, epsilon_inner=10.0, epsilon_outer=10.0)
+                        self.past_target = target
                     except Exception:
                         pass
             finally:
@@ -47,7 +50,6 @@ class PandaGripperServer(Node):
              # For now, assuming it might crash if read_once is called on None, or we should check connection.
              # But following original code style, it didn't check explicitly in get_sensors_gripper but get_sensors did check self.panda
              pass
-
         try:
             response.state = PandaGripperState(width=self.cached_width)
         except Exception as e:
@@ -58,7 +60,7 @@ class PandaGripperServer(Node):
 
     def apply_commands_gripper(self, request, response):
         # self.get_logger().info('Apply Commands Gripper')
-        self.past_target = self.target_width
+        print("Applying gripper command to width:", request.command.width)
         self.target_width = request.command.width
         response.success = True
         return response
@@ -69,6 +71,7 @@ class PandaGripperServer(Node):
             self.gripper = Gripper(self.ip)
             # self.target_width = self.gripper.read_once().width
             response.success = True
+            self.cached_width = self.gripper.read_once().width
             self.get_logger().info(f'Connected to gripper@{self.ip}')
         except RuntimeError:
             self.get_logger().info(f'Connection to gripper@{self.ip} failed')
