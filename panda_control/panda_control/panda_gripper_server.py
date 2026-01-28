@@ -35,7 +35,7 @@ class PandaGripperServer(Node):
                     print("Gripper moving to target width:", target)
                     try:
                         self.gripper.grasp(target, speed=0.5, force=20.0, epsilon_inner=10.0, epsilon_outer=10.0)
-                        self.cached_width = self.gripper.read_once().width
+                        # self.cached_width = self.gripper.read_once().width
                         self.past_target = target
                     except Exception:
                         pass
@@ -51,7 +51,12 @@ class PandaGripperServer(Node):
              # But following original code style, it didn't check explicitly in get_sensors_gripper but get_sensors did check self.panda
              pass
         try:
-            response.state = PandaGripperState(width=self.cached_width)
+            if self.cached_width is None:
+                self.cached_width = self.gripper.read_once().width
+                response.state = PandaGripperState(width=self.cached_width)
+            else:
+                response.state = PandaGripperState(width=self.cached_width)
+                self.cached_width = None
         except Exception as e:
             self.get_logger().error(f'Failed to read gripper: {e}')
         
